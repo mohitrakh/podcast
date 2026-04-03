@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    konghq.com/strip-path: "false"
+    konghq.com/plugins: rate-limit
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-srv
+                port:
+                  number: 5000
+
+          - path: /api/podcast
+            pathType: Prefix
+            backend:
+              service:
+                name: podcast-srv
+                port:
+                  number: 5000

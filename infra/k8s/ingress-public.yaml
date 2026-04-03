@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-public
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /api/public/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-srv
+                port:
+                  number: 5000
+
+          - path: /api/public/podcast
+            pathType: Prefix
+            backend:
+              service:
+                name: podcast-srv
+                port:
+                  number: 5000
