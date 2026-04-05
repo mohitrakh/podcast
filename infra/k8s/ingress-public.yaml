@@ -30,3 +30,11 @@ spec:
                 name: podcast-srv
                 port:
                   number: 5000
+
+          - path: /media
+            pathType: Prefix
+            backend:
+              service:
+                name: media-srv
+                port:
+                  number: 5000
