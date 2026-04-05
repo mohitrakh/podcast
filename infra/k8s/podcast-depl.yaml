@@ -18,6 +18,14 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
+          env:
+            - name: MONGO_URI
+              value: "mongodb://podcast-mongo-srv:27017/podcast"
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
           readinessProbe:
             httpGet:
               path: /api/public/podcast/health

@@ -24,3 +24,11 @@ spec:
                 name: podcast-srv
                 port:
                   number: 5000
+
+          - path: /api/private/episode
+            pathType: Prefix
+            backend:
+              service:
+                name: podcast-srv
+                port:
+                  number: 5000

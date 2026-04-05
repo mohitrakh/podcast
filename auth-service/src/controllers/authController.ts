@@ -59,10 +59,15 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
 export const updateProfile = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { name, email } = req.body;
+    const { name } = req.body;
     const userId = req.user?.id;
 
-    const updatedUser = await User.findByIdAndUpdate(userId, { name, email }, { new: true }).select('-passwordHash');
+    if (!name) {
+      res.status(400).json({ success: false, message: 'Name is required' });
+      return;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, { name }, { new: true }).select('-passwordHash');
     if (!updatedUser) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;
@@ -85,6 +90,22 @@ export const deleteProfile = async (req: AuthRequest, res: Response, next: NextF
     }
 
     res.json({ success: true, message: 'Profile deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMe = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const user = await User.findById(userId).select('-passwordHash');
+
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    res.json({ success: true, user });
   } catch (error) {
     next(error);
   }
