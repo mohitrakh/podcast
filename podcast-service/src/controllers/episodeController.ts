@@ -5,7 +5,7 @@ import { AuthRequest } from '../middleware/authMiddleware';
 class EpisodeController {
   public async createEpisode(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { podcastId, title, description, duration } = req.body;
+      const { podcastId, title, description, duration, fileUrl } = req.body;
       const creatorId = req.user?.id;
 
       if (!creatorId) {
@@ -19,7 +19,7 @@ class EpisodeController {
       }
 
       const episode = await episodeService.createEpisode({
-        podcastId, title, description, creatorId, duration
+        podcastId, title, description, creatorId, duration, fileUrl
       });
       res.status(201).json({ success: true, data: episode });
     } catch (error) {
@@ -41,12 +41,12 @@ class EpisodeController {
     try {
       const id = req.params.id as string;
       const episode = await episodeService.getEpisodeById(id);
-      
+
       if (!episode) {
         res.status(404).json({ success: false, message: 'Episode not found' });
         return;
       }
-      
+
       res.status(200).json({ success: true, data: episode });
     } catch (error) {
       res.status(500).json({ success: false, message: (error as Error).message });
@@ -64,12 +64,12 @@ class EpisodeController {
       }
 
       const episode = await episodeService.publishEpisode(id, creatorId);
-      
+
       if (!episode) {
         res.status(404).json({ success: false, message: 'Episode not found or unauthorized' });
         return;
       }
-      
+
       res.status(200).json({ success: true, data: episode });
     } catch (error) {
       res.status(500).json({ success: false, message: (error as Error).message });

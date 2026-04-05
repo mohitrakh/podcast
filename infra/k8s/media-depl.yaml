@@ -23,3 +23,11 @@ spec:
               value: "5000"
             - name: BASE_URL
               value: "http://localhost:8000"
+
+          volumeMounts:
+            - name: media-storage
+              mountPath: /app/uploads
+      volumes:
+        - name: media-storage
+          persistentVolumeClaim:
+            claimName: media-pvc
