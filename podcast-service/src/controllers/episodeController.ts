@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import episodeService from '../services/episodeService';
 import { AuthRequest } from '../middleware/authMiddleware';
+import { getNats } from '../config/nats-client';
 
 class EpisodeController {
   public async createEpisode(req: AuthRequest, res: Response): Promise<void> {
@@ -21,6 +22,14 @@ class EpisodeController {
       const episode = await episodeService.createEpisode({
         podcastId, title, description, creatorId, duration, fileUrl
       });
+
+      await getNats().publish(
+        "episode.created",
+        JSON.stringify({
+          episodeId: episode._id,
+          podcastId: episode.podcastId,
+        })
+      );
       res.status(201).json({ success: true, data: episode });
     } catch (error) {
       res.status(500).json({ success: false, message: (error as Error).message });
