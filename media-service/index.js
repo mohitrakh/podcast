@@ -3,6 +3,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { connect, StringCodec } = require('nats');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,6 +55,28 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
+const startNatsListener = async () => {
+  try {
+    const nc = await connect({ servers: "nats://nats-srv:4222" });
+    console.log("Media Service connected to NATS");
+    
+    const sc = StringCodec();
+    const sub = nc.subscribe("episode.created");
+    
+    (async () => {
+      for await (const msg of sub) {
+        const data = JSON.parse(sc.decode(msg.data));
+        console.log("Media Service received [episode.created]:", data);
+      }
+    })();
+    
+  } catch (err) {
+    console.error("Error connecting to NATS:", err);
+  }
+};
+
 app.listen(PORT, () => {
   console.log(`Media Service running at port ${PORT}`);
+  startNatsListener();
 });
+

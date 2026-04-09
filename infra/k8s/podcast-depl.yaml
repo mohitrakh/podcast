@@ -26,6 +26,10 @@ spec:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_KEY
+            - name: PORT
+              value: "5000"
+            - name: BASE_URL
+              value: "http://localhost:8000"
           readinessProbe:
             httpGet:
               path: /api/public/podcast/health

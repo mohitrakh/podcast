@@ -6,7 +6,9 @@ import { getNats } from '../config/nats-client';
 class EpisodeController {
   public async createEpisode(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const { podcastId, title, description, duration, fileUrl } = req.body;
+      const BASE_URL = process.env.BASE_URL || `http://localhost:5000`;
+      const file = req.file;
+      const { podcastId, title, description, duration } = req.body;
       const creatorId = req.user?.id;
 
       if (!creatorId) {
@@ -19,8 +21,17 @@ class EpisodeController {
         return;
       }
 
+      if (!file) {
+        res.status(400).json({ success: false, message: 'Audio file is required' });
+        return;
+      }
+
+      const filename = file.filename;
+      // Return the configured URL combining base URL and media/audio path
+      const fileUrl = `${BASE_URL}/media/audio/${filename}`;
+
       const episode = await episodeService.createEpisode({
-        podcastId, title, description, creatorId, duration, fileUrl
+        podcastId, title, description, creatorId, fileUrl
       });
 
       await getNats().publish(
@@ -28,6 +39,7 @@ class EpisodeController {
         JSON.stringify({
           episodeId: episode._id,
           podcastId: episode.podcastId,
+          fileUrl
         })
       );
       res.status(201).json({ success: true, data: episode });
